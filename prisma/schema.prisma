@@ -1,0 +1,94 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  email        String @unique
+  nickname     String
+  passwordHash String
+
+  schedules   Schedule[]
+  todos       Todo[]
+  quizResults QuizResult[]
+}
+
+model Schedule {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title         String
+  description   String?
+  startDateTime DateTime
+  endDateTime   DateTime?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model Todo {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title    String
+  isDone   Boolean   @default(false)
+  dueDate  DateTime?
+  priority Int?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
+
+model QuizSet {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  title       String
+  description String?
+
+  questions   Question[]
+  quizResults QuizResult[]
+}
+
+model Question {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  questionText String
+  option1      String
+  option2      String
+  option3      String
+  option4      String
+  answerIndex  Int
+  explanation  String?
+
+  quizSetId Int
+  quizSet   QuizSet @relation(fields: [quizSetId], references: [id])
+}
+
+model QuizResult {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quizSetId Int
+  quizSet   QuizSet @relation(fields: [quizSetId], references: [id])
+
+  score       Int
+  completedAt DateTime @default(now())
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+}
